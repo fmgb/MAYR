@@ -284,15 +284,15 @@ void motorHome(unsigned short motorSelect)
           selectVelocityX(1);
           stopMotorY();
           moveLeft();
-          
         }
       else
         Serial.println("ERROR: The motorSelect is not active");
-      
     }
   else if(motorSelect == 1)
     {// Motor Y
-      
+      selectVelocityY();
+      stopMotorX();
+      moveDown();
     }
   else
     {//UNKNOWN Motor
