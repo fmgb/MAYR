@@ -132,7 +132,7 @@ void intEncoderX();
 void intEncoderY();
 void intEmergency();
 void intActivateEndstop();
-void motorHome(unsigned short motorSelect);
+void motorHome(unsigned short motorSelect); // 1 -> X, 2 -> Y
 void activeMotors();
 void desactiveMotors();
 void moveLeft();
@@ -146,6 +146,7 @@ void moveLeft()
 {
   digitalWrite(O_STFX,LOW);
   digitalWrite(O_STRX,HIGH);
+  digitalWrite(O_PAX,HIGH);
   dirMotorX = false;
 }
 
@@ -153,6 +154,7 @@ void moveRight()
 {
   digitalWrite(O_STRX,LOW);
   digitalWrite(O_STFX,HIGH);
+  digitalWrite(O_PAX,HIGH);
   dirMotorX = true;
 }
 
@@ -160,6 +162,7 @@ void moveUp()
 {
   digitalWrite(O_STRY,LOW);
   digitalWrite(O_STFY,HIGH);
+  digitalWrite(O_PAY,HIGH);
   dirMotorY = true;
 }
 
@@ -167,6 +170,7 @@ void moveDown()
 {
   digitalWrite(O_STFY,LOW);
   digitalWrite(O_STRY,HIGH);
+  digitalWrite(O_PAY,HIGH);
   dirMotorY = false;
 }
 
@@ -174,12 +178,14 @@ void stopMotorX()
 {
   digitalWrite(O_STFX,LOW);
   digitalWrite(O_STRX,LOW);
+  digitalWrite(O_PAX,LOW);
 }
 
 void stopMotorY()
 {
   digitalWrite(O_STFY,LOW);
   digitalWrite(O_STRY,LOW);
+  digitalWrite(O_PAY,LOW);
 }
 
 void initPinModes()
@@ -224,8 +230,6 @@ void initPinModes()
   attachInterrupt(4,intActivateEndstop,RISING);
   attachInterrupt(5,intEmergency,RISING);
 }
-
-
 
 void activeMotors()
 {
@@ -276,33 +280,35 @@ void selectVelocityY(unsigned short velocity)
 void motorHome(unsigned short motorSelect)
 {
   calibrateMode = true;
-  
-  if(motorSelect == 0)
-    {//Motor X
-      if(digitalRead(I_CMARCHA) == HIGH)
-        {
+  if(digitalRead(I_CMARCHA) == HIGH)
+    {
+      if(motorSelect == 0)
+        {//Motor X
           selectVelocityX(1);
           stopMotorY();
+          contadorPasosX = 0;
           moveLeft();
         }
+      else if(motorSelect == 1)
+        {// Motor Y
+          selectVelocityY();
+          stopMotorX();
+          contadorPasosY = 0;
+          moveDown();
+        }
       else
-        Serial.println("ERROR: The motorSelect is not active");
-    }
-  else if(motorSelect == 1)
-    {// Motor Y
-      selectVelocityY();
-      stopMotorX();
-      moveDown();
+        {//UNKNOWN Motor
+          Serial.println("ERROR: motorSelect > 1");
+          calibrateMode = false;
+          intEmergency();
+        }
     }
   else
-    {//UNKNOWN Motor
-      Serial.println("ERROR: motorSelect > 1");
-      calibrateMode = false;
-      intEmergency();
-    }
+    Serial.println("ERROR: The motorSelect is not active");
     
   calibrateMode = false;
 }
+
 
 void intEncoderX()
 {
@@ -345,7 +351,8 @@ void intActivateEndstop()
 
 void intEmergency()
 {
-  //TODO
+  stopMotorX();
+  stopMotorY();
 }
 
 
