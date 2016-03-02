@@ -3,7 +3,13 @@
 
 void setup() {
   // put your setup code here, to run once:
-  initPinModes();
+  initPinModes(9600);
+  activeBrake();
+  motorHome(0);
+  motorHome(1);
+  calibrate(0);
+  calibrate(1);
+  
 }
 
 void loop() {

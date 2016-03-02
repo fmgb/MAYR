@@ -118,15 +118,16 @@
 #define FRENODES 1 //NORMALMENTE CERRADO
 #define FRENOACT 0
 
-unsigned int contadorPasosX = 0;
-unsigned int contadorPasosY = 0;
+int contadorPasosX = 0;
+int contadorPasosY = 0;
+
+float stepsX = 0;
+float stepsY = 0;
 
 bool dirMotorX = false; // False -> LEFT; True -> RIGHT
 bool dirMotorY = false; // False -> DOWN; True -> UP
 
 bool freno = false;
-
-bool calibrateMode = false;
 
 void intEncoderX();
 void intEncoderY();
@@ -141,6 +142,11 @@ void moveUp();
 void moveDown();
 void stopMotorX();
 void stopMotorY();
+void activeBrake();
+void deactiveBrake();
+void calibrate(); // Steps per mm.
+void moveXmm(int mm); // + -> Right, - -> Left
+void moveYmm(int mm); // + -> Up, - -> Down
 
 void moveLeft()
 {
@@ -174,6 +180,53 @@ void moveDown()
   dirMotorY = false;
 }
 
+void moveXmm(int mm)
+{
+  stopMotorY();
+  stopMotorX();
+
+  if(mm > 0)
+    {
+      int contadorTarget = contadorPasosX + stepsX * mm;
+      moveRight();
+      while(contadorTarget > contadorPasosX) { };
+      
+      stopMotorX();
+    }
+  else if (mm < 0)
+    {
+      int contadorTarget = contadorPasosX + stepsX * mm;
+      moveLeft();
+      while(contadorTarget < contadorPasosX) { };
+      stopMotorX();
+    }
+  else
+    Serial.println("Move 0 mm");
+}
+
+void moveYmm(int mm)
+{
+  stopMotorY();
+  stopMotorX();
+
+  if(mm > 0)
+    {
+      int contadorTarget = contadorPasosY + stepsY * mm;
+      moveUp();
+      while(contadorTarget > contadorPasosY) { };
+      stopMotorY();
+    }
+  else if (mm < 0)
+    {
+      int contadorTarget = contadorPasosY + stepsY * mm;
+      moveDown();
+      while(contadorTarget < contadorPasosY) { };
+      stopMotorY();
+    }
+  else
+    Serial.println("Move 0 mm");
+}
+
 void stopMotorX()
 {
   digitalWrite(O_STFX,LOW);
@@ -183,13 +236,28 @@ void stopMotorX()
 
 void stopMotorY()
 {
+  activeBrake();
   digitalWrite(O_STFY,LOW);
   digitalWrite(O_STRY,LOW);
   digitalWrite(O_PAY,LOW);
 }
 
-void initPinModes()
+void activeBrake()
 {
+  digitalWrite(O_FRENO, FRENOACT);
+  freno = true;
+}
+
+void deactiveBrake()
+{
+  digitalWrite(O_FRENO, FRENODES);
+  freno = false;
+}
+
+void initPinModes(unsigned short baudrate)
+{
+  Serial.begin(9600);
+  
   // INPUT
   pinMode(I_CMARCHA, INPUT);
   pinMode(I_JKARR, INPUT);  
@@ -236,8 +304,10 @@ void activeMotors()
   digitalWrite(O_MARCHA,HIGH);
 }
 
-void desactiveMotors()
+void deactiveMotors()
 {
+  activeBrake();
+  
   digitalWrite(O_MARCHA,LOW);
 }
 
@@ -279,57 +349,101 @@ void selectVelocityY(unsigned short velocity)
 // motorSelect = 0 -> X ; motorSelect = 1 -> Y
 void motorHome(unsigned short motorSelect)
 {
-  calibrateMode = true;
   if(digitalRead(I_CMARCHA) == HIGH)
     {
       if(motorSelect == 0)
         {//Motor X
           selectVelocityX(1);
           stopMotorY();
-          contadorPasosX = 0;
           moveLeft();
+          while(!digitalRead(I_FCX1)){ };
+          
+          contadorPasosX = 0;
+          moveRight();
+          while(digitalRead(I_FCX1)) {};
+          
+          stopMotorX();
         }
       else if(motorSelect == 1)
         {// Motor Y
-          selectVelocityY();
+          selectVelocityY(1);
           stopMotorX();
-          contadorPasosY = 0;
+          deactiveBrake();
           moveDown();
+          while(!digitalRead(I_FCY2)) { };
+          
+          contadorPasosY = 0;
+          moveUp();
+          while(digitalRead(I_FCY2)){ };
+          
+          stopMotorY();
         }
       else
         {//UNKNOWN Motor
           Serial.println("ERROR: motorSelect > 1");
-          calibrateMode = false;
           intEmergency();
         }
     }
   else
     Serial.println("ERROR: The motorSelect is not active");
     
-  calibrateMode = false;
 }
 
+// Steps expresed in mm.
+void calibrate(unsigned short motor)
+{
+  //Start [0,0]
+  if(motor == 0)
+    {
+      moveRight();
+      while(!digitalRead(I_FCX2)) { };
+      
+      int stepsXAux = contadorPasosX;
+      Serial.print("\nSteps motor X per");
+      Serial.print(mmX);
+      Serial.print(": ");
+      Serial.println(stepsX);
+      moveLeft();
+      while(digitalRead(I_FCX2)){};
+      stopMotorX();
+      
+      stepsX = (stepsXAux)/((float)mmX);
+    }
+  else if(motor == 1)
+    {
+      moveUp();
+      while(!digitalRead(I_FCY1)) { };
+      
+      int stepsYAux = contadorPasosY;
+      Serial.print("\nSteps per");
+      Serial.print(mmY);
+      Serial.print(": ");
+      Serial.println(stepsY);
+      moveDown();
+      while(digitalRead(I_FCY1)){};
+      
+      stopMotorY();
+      
+      stepsY = (stepsYAux)/((float) mmY);
+    }
+  else
+    Serial.println("ERROR: Calibrate motor");
+}
 
 void intEncoderX()
 {
-  if (!calibrateMode)
-    {
-      if(dirMotorX == DIRBACK)
-        contadorPasosX--;
-      else
+  if(dirMotorX == DIRBACK)
+    contadorPasosX--;
+  else
         contadorPasosX++;
-    }
 }
 
 void intEncoderY()
 {
-  if(!calibrateMode)
-    {
-      if(dirMotorY == DIRBACK)
-        contadorPasosY--;
-      else
-        contadorPasosY++;
-    }
+  if(dirMotorY == DIRBACK)
+    contadorPasosY--;
+  else
+    contadorPasosY++;
 }
 
 void intActivateEndstop()
@@ -353,6 +467,7 @@ void intEmergency()
 {
   stopMotorX();
   stopMotorY();
+  deactiveMotors();
 }
 
 
