@@ -229,6 +229,16 @@ void moveYmm(int mm)
     Serial.println("Move 0 mm");
 }
 
+void moveXSteps(int atributos)
+{
+
+}
+
+void moveYSteps(int atributos)
+{
+
+}
+
 void stopMotorX()
 {
   digitalWrite(O_STFX,LOW);

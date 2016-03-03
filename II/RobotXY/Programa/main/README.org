@@ -1,0 +1,42 @@
+* Métodos librería xy.hpp
+
+
+* Métodos protocolo
+
+
+* Utilización de la API
+  Antes de empezar a utilizar la API del firmware de Arduino. Deberemos de contemplar que esta API envia un sólo mensaje con todos los parámetros necesarios para desarrollar una acción. Es decir, que para mover el eje X una cantidad de pasos correspondiente deberemos de enviar: 'XP485'
+Este mensaje moverá el eje X una distancia de 485 pasos hacia la derecha.
+** Motores
+*** Movimiento
+Mueve una distancia relativa a metros o a pasos del motor. La utilización de números negativos implica ir hacia la izquierda o hacia abajo, según el motor seleccionado.
+*** Velocidades
+Actualiza la velocidad del motor del eje correspondiente.
+** Finales de carrera
+Obtención del estado actual de los finales de carrera.
+** Emergencia
+Utilización en caso de emergencia. Detiene todos los motores y activa el freno. También desactiva los motores.
+
+** Freno
+Activación del freno del eje Y.
+
+
+* Paso de mensajes
+Deberemos de juntar el mensaje con su categoría subordinada.
+** Motores
+Para utilizar el motor X: X
+Para utilizar el motor Y: Y
+*** Movimiento
+**** Pasos
+Para mover en pasos: P
+**** Milímetros
+Para mover en mm: M
+***** Cantidad
+Para mover una cantidad, deberemos de poner el número.
+** Finales de carrera
+Para obtener el estado de los finales de carrera: FC
+** Emergencia
+Para detener la máquina: EM
+** Freno
+Para activar el freno: AF
+Para desactivar el freno: DF
