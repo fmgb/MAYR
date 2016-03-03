@@ -144,9 +144,11 @@ void stopMotorX();
 void stopMotorY();
 void activeBrake();
 void deactiveBrake();
+void controlJostick();
 void calibrate(); // Steps per mm.
 void moveXmm(int mm); // + -> Right, - -> Left
 void moveYmm(int mm); // + -> Up, - -> Down
+unsigned short getStateEndStops();
 
 void moveLeft()
 {
@@ -386,7 +388,6 @@ void motorHome(unsigned short motorSelect)
     }
   else
     Serial.println("ERROR: The motorSelect is not active");
-    
 }
 
 // Steps expresed in mm.
@@ -470,6 +471,61 @@ void intEmergency()
   deactiveMotors();
 }
 
+unsigned short getStateEndStops()
+{
+  unsigned short endStopAct = 0000;
+  if(digitalRead(I_FCX1) == HIGH)
+    endStopAct += 1000;
+  if(digitalRead(I_FCX2) == HIGH)
+    endStopAct += 0100;
+  if(digitalRead(I_FCY1) == HIGH)
+    endStopAct += 0010;
+  if(digitalRead(I_FCY2) == HIGH)
+    endStopAct += 0001;
+  return endStopAct;
+}
 
+void controlJostick()
+{
+  byte controller = 0;
+  
+  while(controller != 110)
+    {
+      if(digitalRead(I_JKIZQ) == HIGH)
+        {
+          delay(1000); //Tiempo para evitar falsas lecturas.
+          moveLeft();
+          while(digitalRead(I_JKIZQ) == HIGH && digitalRead(I_FCX1) == LOW) {  };
+          stopMotorX();
+        }
+      else if(digitalRead(I_JKDER) == HIGH)
+        {
+          delay(1000);
+          moveRight();
+          while(digitalRead(I_JKDER) == HIGH && digitalRead(I_FCX2) == LOW) {  };
+          stopMotorX();
+        }
+      else if(digitalRead(I_JKARR) == HIGH)
+        {
+          delay(1000);
+          moveUp();
+          while(digitalRead(I_JKARR) == HIGH && digitalRead(I_FCY1) == LOW) {  };
+          stopMotorY();
+        }
+      else if(digitalRead(I_JKABA) == HIGH)
+        {
+          delay(1000);
+          moveDown();
+          while(digitalRead(I_JKABA) == HIGH && digitalRead(I_FCY2) == LOW) {  };
+          stopMotorY();
+        }
+      
+      if(Serial.available() > 0)
+        controller = Serial.read();
+      
+    }
+  Serial.println("Salida del modo Jostick");
+  
+}
 
 #endif
