@@ -258,7 +258,7 @@ void deactiveBrake()
 
 void initPinModes(unsigned short baudrate)
 {
-  Serial.begin(9600);
+  Serial.begin(baudrate);
   
   // INPUT
   pinMode(I_CMARCHA, INPUT);
@@ -488,6 +488,8 @@ unsigned short getStateEndStops()
 void controlJostick()
 {
   byte controller = 0;
+
+  Serial.println("Entrada en el modo Jostick");
   
   while(controller != 110)
     {
