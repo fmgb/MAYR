@@ -130,6 +130,7 @@ bool dirMotorY = false; // False -> DOWN; True -> UP
 bool freno = false;
 
 int twait = 40;
+int twaitFC = 100;
 void intEncoderX();
 void intEncoderY();
 void intEmergency();
@@ -378,7 +379,8 @@ void motorHome(unsigned short motorSelect)
           
           contadorPasosX = 0;
           moveRight();
-          while(digitalRead(I_FCX1)) {};
+	  delay(twaitFC);
+          //while(digitalRead(I_FCX1)) {};
           
           stopMotorX();
         }
@@ -392,8 +394,8 @@ void motorHome(unsigned short motorSelect)
           
           contadorPasosY = 0;
           moveUp();
-          while(digitalRead(I_FCY2)){ };
-          
+//          while(digitalRead(I_FCY2)){ };
+  	  delay(twaitFC);        
           stopMotorY();
         }
       else
