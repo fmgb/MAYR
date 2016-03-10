@@ -129,6 +129,7 @@ bool dirMotorY = false; // False -> DOWN; True -> UP
 
 bool freno = false;
 
+int twait = 40;
 void intEncoderX();
 void intEncoderY();
 void intEmergency();
@@ -168,6 +169,7 @@ void moveRight()
 
 void moveUp()
 {
+  deactiveBrake();
   digitalWrite(O_STRY,LOW);
   digitalWrite(O_STFY,HIGH);
   digitalWrite(O_PAY,HIGH);
@@ -176,6 +178,7 @@ void moveUp()
 
 void moveDown()
 {
+  deactiveBrake();
   digitalWrite(O_STFY,LOW);
   digitalWrite(O_STRY,HIGH);
   digitalWrite(O_PAY,HIGH);
@@ -256,14 +259,17 @@ void stopMotorY()
 
 void activeBrake()
 {
+
   digitalWrite(O_FRENO, FRENOACT);
   freno = true;
+  delay(twait);  
 }
 
 void deactiveBrake()
 {
   digitalWrite(O_FRENO, FRENODES);
   freno = false;
+  delay(twait);
 }
 
 void initPinModes(unsigned short baudrate)
