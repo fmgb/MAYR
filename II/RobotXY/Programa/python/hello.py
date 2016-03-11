@@ -1,0 +1,42 @@
+import serial
+from robotxy import Robotxy
+
+from flask import Flask
+
+app = Flask(__name__)
+
+
+@app.route("/")
+def hello():
+	return "Hello World!\n"
+
+@app.route("/connect",methods=['GET'])
+def connect():
+	#ser = serial.Serial('/dev/ttyUSB0',9600)
+	#ser.write('7 0 0\n'.encode('utf-8'))
+	#robot = Robotxy().connect()
+	ser = serial.Serial('/dev/ttyUSB0',9600)
+	ser.write('6 0 0\n'.encode('utf-8'))
+	ser.write('0 0 20\n'.encode('utf-8'))
+	return "OK"#ser.readline()
+
+@app.route("/status",methods=["GET"])
+def status():
+#	status =  Robotxy().status()
+	ser = serial.Serial('/dev/ttyUSB0',9600)
+	ser.write('7 0 0\n'.encode('utf-8'))
+	status = ser.readline()
+	return status
+
+@app.route('/setPosition/<int:position>',methods=["GET"])
+def setPosition(position):
+	ser = serial.Serial('/dev/ttyUSB0',9600)
+	newPosition = '8 0 %d\n' % position
+	ser = serial.Serial('/dev/ttyUSB0',9600)
+	ser.write(newPosition.encode('utf-8'))
+#	statu = ser.readline()
+	return "OK"
+
+if __name__ == "__main__":
+	app.run(debug=True,host='0.0.0.0')
+	robotXY = RobotXY()
