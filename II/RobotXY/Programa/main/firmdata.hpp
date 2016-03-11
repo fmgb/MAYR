@@ -95,7 +95,7 @@ void manageOrder()
             if(controller == 69)
               {
                 if(controller2 == 77)
-                  intEmergency();
+                  interruptEmergency();
               }
             if(controller == 65)
               {
