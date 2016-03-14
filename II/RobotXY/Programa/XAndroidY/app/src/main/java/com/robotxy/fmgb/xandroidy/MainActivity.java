@@ -18,6 +18,9 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     /**
@@ -44,12 +47,17 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.container);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mSectionsPagerAdapter.addFragment(PlaceholderFragment.newInstance(R.layout.fragment_control));
+        mSectionsPagerAdapter.addFragment(PlaceholderFragment.newInstance(R.layout.fragment_main));
+
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
 
@@ -95,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
+        static int i;
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -102,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
         private static final String ARG_SECTION_NUMBER = "section_number";
 
         public PlaceholderFragment() {
+            i = 0;
         }
 
         /**
@@ -111,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
-            System.out.println("ADIOS" + sectionNumber);
+
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
             fragment.setArguments(args);
             return fragment;
@@ -120,11 +130,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-
-            System.out.println(inflater);
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            System.out.println("HOLAAAAAAAAA");
-            //View rootView = inflater.inflate(R.layout.fragment_control,container,false);
+            View rootView;
+            if( i == 0)
+                rootView = inflater.inflate(R.layout.fragment_control,container,false);
+            else if (i == 1)
+                rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            else
+                rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            //Para poner mas fragments ir anyadiendo else if
+            i = i +1;
             return rootView;
         }
     }
@@ -135,21 +149,30 @@ public class MainActivity extends AppCompatActivity {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
+        List<Fragment> fragments;
+
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
+            this.fragments = new ArrayList<Fragment>();
+        }
+
+        public void addFragment(Fragment fragment)
+        {
+            this.fragments.add(fragment);
         }
 
         @Override
         public Fragment getItem(int position) {
+
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            return this.fragments.get(position);
         }
 
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 3;
+            return this.fragments.size();
         }
 
         @Override
