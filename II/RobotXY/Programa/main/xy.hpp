@@ -135,6 +135,12 @@ int tWait = 3000;
 int tWaitFC = 2000;
 int maxVelocityPoint = 750;
 int midVelocityPoint = 250;
+float THRESHOLDX_1 = 0.1;
+float THRESHOLDX_2 = 0.2;
+float THRESHOLDY_1 = 0.1;
+float THRESHOLDY_2 = 0.2;
+
+
 void intEncoderX();
 void intEncoderY();
 void interruptEmergency();
@@ -170,7 +176,7 @@ void writePosition(unsigned short axis)
   Serial.print("\n");
 }
 
-void adaptVelocityX(int remainingSteps)
+/*void adaptVelocityX(int remainingSteps)
 {
   if(remainingSteps > maxVelocityPoint)
     selectVelocityX(3);
@@ -189,7 +195,7 @@ void adaptVelocityY(int remainingSteps)
   else
     selectVelocityY(1);
 }
-
+*/
 void moveLeft()
 {
   digitalWrite(O_STFX,LOW);
@@ -225,33 +231,92 @@ void moveUp()
   dirMotorY = false;
 }
 
+void adaptVelocityYUp(int stepsInicial,int contadorTarget)
+{
+  int diffSteps = contadorTarget- stepsInicial;
 
+  int threshold1 = diffSteps * THRESHOLDY_1;
+  int threshold2 = diffSteps * THRESHOLDY_2;
+
+  if(contadorPasosY < stepsInicial + threshold1 || contadorPasosY > contadorTarget - threshold1)
+    selectVelocityY(1);
+  else if(contadorPasosY < stepsInicial + threshold2 || contadorPasosY > contadorTarget - threshold2)
+    selectVelocityY(2);
+  else
+    selectVelocityY(3);
+}
+
+void adaptVelocityYDown(int stepsInicial, int contadorTarget)
+{
+  int diffSteps = stepsInicial - contadorTarget;
+  
+  int threshold1 = diffSteps * THRESHOLDY_1;
+  int threshold2 = diffSteps * THRESHOLDY_2;
+
+  if(contadorPasosY > stepsInicial - threshold1 || contadorPasosY < contadorTarget + threshold2)
+     selectVelocityY(1);
+  else if(contadorPasosY > stepsInicial - threshold2 || contadorPasosY < contadorTarget + threshold2)
+     selectVelocityY(2);
+  else
+    selectVelocityY(3);
+  
+}
+
+void adaptVelocityXRight(int stepsInicial, int contadorTarget)
+{
+  int diffSteps = contadorTarget- stepsInicial;
+
+  int threshold1 = diffSteps * THRESHOLDX_1;
+  int threshold2 = diffSteps * THRESHOLDX_2;
+
+  if(contadorPasosX < stepsInicial + threshold1 || contadorPasosX > contadorTarget - threshold1)
+    selectVelocityX(1);
+  else if(contadorPasosX < stepsInicial + threshold2 || contadorPasosX > contadorTarget - threshold2)
+    selectVelocityX(2);
+  else
+    selectVelocityX(3);
+}
+
+void adaptVelocityXLeft(int stepsInicial,int contadorTarget)
+{
+  int diffSteps = stepsInicial - contadorTarget;
+  
+  int threshold1 = diffSteps * THRESHOLDX_1;
+  int threshold2 = diffSteps * THRESHOLDX_1;
+
+  if(contadorPasosX > stepsInicial - threshold1 || contadorPasosX < contadorTarget + threshold2)
+     selectVelocityX(1);
+  else if(contadorPasosX > stepsInicial - threshold2 || contadorPasosX < contadorTarget + threshold2)
+     selectVelocityX(2);
+  else
+    selectVelocityX(3);
+
+}
 
 void moveXmm(int mm)
 {
   stopMotorY();
   stopMotorX();
+  int stepsInicial = contadorPasosX;
+  int contadorTarget = contadorPasosX + stepsX * mm;
 
   if(mm > 0)
     {
-      int stepsInicial = contadorPasosX;
-      int contadorTarget = contadorPasosX + stepsX * mm;
-      Serial.println("HOLA");
+      
       moveRight();
       
       while(contadorTarget > contadorPasosX && digitalRead(I_FCX2) == LOW) 
       {
-	      adaptVelocityX(contadorTarget-contadorPasosX);
+        adaptVelocityXRight(stepsInicial,contadorTarget); 
       }
       stopMotorX();
     }
   else if (mm < 0)
     {
-      int contadorTarget = contadorPasosX + stepsX * mm;
       moveLeft();
       while(contadorTarget < contadorPasosX && digitalRead(I_FCX1) == LOW) 
       {
-        adaptVelocityX(contadorPasosX - contadorTarget); 
+        adaptVelocityXLeft(stepsInicial,contadorTarget);
       };
       stopMotorX();
     }
@@ -263,30 +328,25 @@ void moveYmm(int mm)
 {
   stopMotorY();
   stopMotorX();
+  int stepsInicial = contadorPasosY;
   int contadorTarget = contadorPasosY + stepsY * mm;
   if(mm > 0)
     {
-      //Serial.println("Ymm");
       moveUp();
-      //Serial.println("moveUp");
-      //Serial.println(contadorTarget);
       
       while(contadorTarget > contadorPasosY && digitalRead(I_FCY1) == LOW) 
       { 
-        //Serial.println(contadorPasosY);
-	adaptVelocityY(contadorTarget - contadorPasosY);
+	adaptVelocityYUp(stepsInicial,contadorTarget);
       }
       stopMotorY();
     }
   else if (mm < 0)
     {
-      //Serial.println("1000");
-      
       moveDown();
-      //Serial.println("1002");
       while(contadorTarget < contadorPasosY && digitalRead(I_FCY2) == LOW) 
       {
-  	adaptVelocityY(contadorPasosY - contadorTarget);
+	adaptVelocityYDown(stepsInicial, contadorTarget);
+//  	adaptVelocityY(contadorPasosY - contadorTarget);
       }
       //Serial.println("1001");
       stopMotorY();
@@ -298,29 +358,32 @@ void moveYmm(int mm)
 
 void moveXSteps(int steps)
 {
-  int stepsTarget = contadorPasosX + steps;
+  int stepsInicial = contadorPasosX;
   //Serial.println("Move Steps");
   if (steps > 0)
   {
+  int stepsTarget = contadorPasosX + steps;
      moveRight();
      //Serial.println("Derecha");
      //Serial.println(stepsTarget);
      while(stepsTarget > contadorPasosX && digitalRead(I_FCX2) == LOW) 
     {
       //Serial.println(contadorPasosX);
- 	adaptVelocityX(stepsTarget-contadorPasosX);
+	adaptVelocityXRight(stepsInicial,stepsTarget);
+// 	adaptVelocityX(stepsTarget-contadorPasosX);
     };
      stopMotorX();
   }
   else 
   {
+    int stepsTarget = contadorPasosX - steps;
     //Serial.println("Izquierda");
      moveLeft();
       //Serial.println(stepsTarget);
      while(stepsTarget < contadorPasosX && digitalRead(I_FCX1) == LOW) 
      {
       //Serial.println(contadorPasosX);
-	adaptVelocityX(stepsTarget-contadorPasosX);
+	adaptVelocityXLeft(stepsInicial,stepsTarget);
      };
      //Serial.println("Salgo");
      stopMotorX();
@@ -330,23 +393,28 @@ void moveXSteps(int steps)
 
 void moveYSteps(int steps) {
 
-  int stepsTarget = contadorPasosY + steps;
-
+  int stepsInicial = contadorPasosY;
   if (steps > 0)
   {
+  int stepsTarget = contadorPasosY + steps;
+
      moveUp();
      while(stepsTarget > contadorPasosY && digitalRead(I_FCY1) == LOW) 
      {
-	adaptVelocityY(stepsTarget - contadorPasosY);
+	adaptVelocityYUp(stepsInicial,stepsTarget);
+//	adaptVelocityY(stepsTarget - contadorPasosY);
      };
      stopMotorY();
   }
   else 
   {
+    int stepsTarget = contadorPasosY - steps;
+
      moveDown();
      while(stepsTarget < contadorPasosY && digitalRead(I_FCY2) == LOW) 
      {
-  	adaptVelocityY(contadorPasosY - stepsTarget);
+	adaptVelocityYDown(stepsInicial, stepsTarget);
+  //	adaptVelocityY(contadorPasosY - stepsTarget);
      };
      stopMotorY();
   }
@@ -628,15 +696,25 @@ void intActivateEndstop()
     }
 }
 
+void rearme()
+{
+  Serial.println("REARME");
+  selectVelocityX(1);
+  selectVelocityY(1);
+    activeMotors();
+}
+
 void interruptEmergency()
 {
-  //Serial.printlnln("EMERGENCIA");
+  Serial.println("EMERGENCIA");
   stopMotorX();
   stopMotorY();
   deactiveMotors();
   delayMicroseconds(10000);
   //TODO Comprobar si es LOW o HIGH en el de emergencia.
   while(digitalRead(INT_EMERG) == LOW) { };
+  //TODO
+  //rearme();
 }
 
 unsigned short getStateEndStops()
@@ -707,28 +785,34 @@ LOW && digitalRead(I_JKARR) == LOW)
         }
   }
 }
+
+
+
 // 4149 X
 // 3223 Y
 
-void setPositionX(int value)
+void setPosition(int value,int axis)
 {
+  if(axis == 0)
   contadorPasosX = value;
+  else
+  contadorPasosY = value;
 }
 
 
-void readSerial()
+void serialEvent()
 {
-  while (Serial.available() > 0) 
+  while (Serial.available()) 
   {
     int action = Serial.parseInt();
     int axis = Serial.parseInt();
     int value = Serial.parseInt();
-/*    Serial.print("action:");
+    Serial.print("action:");
     Serial.print(action);
     Serial.print("Axis:");
     Serial.print(axis);
     Serial.print("Value");
-    //Serial.println(value);*/
+    Serial.println(value);
     if (Serial.read() == '\n') {
       if (!useJoystick)
       {
@@ -739,8 +823,6 @@ void readSerial()
 	       moveXmm(value);
 	    else
 	       moveYmm(value);
-//	    contadorPasosX = value;
-
 	  break;
  	  case 1:
 	    if(axis == 0)
@@ -778,8 +860,13 @@ void readSerial()
 	    writePosition(axis);
 	  break;
     case 8:
-      if (axis == 0)
-      setPositionX(value);
+      setPosition(value,axis);
+    break;
+    case 9:
+      rearme();
+    break;
+    case 10:
+      deactiveMotors();
     break;
 	  default:
 	    Serial.print("He recibido");
@@ -789,10 +876,15 @@ void readSerial()
       }
 	else
 	{
+  Serial.println("Joystick");
 	  if(action == 6)
 	    useJoystick = value;
-    if(action == 7)
+    else if(action == 7)
       writePosition(axis);
+    else if(action == 9)
+        rearme();
+    else if(action == 10)
+        deactiveMotors();
 	}
     }
   }

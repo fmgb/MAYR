@@ -42,4 +42,4 @@ def setPosition(position):
 
 if __name__ == "__main__":
 	app.run(debug=True,host='0.0.0.0')
-	robotXY = RobotXY()
+#	robotXY = RobotXY()

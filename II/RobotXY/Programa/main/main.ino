@@ -1,6 +1,9 @@
 #include "xy.hpp"
 #include "firmdata.hpp"
 
+String inputString = "";
+
+
 void setup() {
   // put your setup code here, to run once:
   initPinModes(9600);
@@ -27,13 +30,14 @@ void setup() {
 //DEBUG
   stepsX = 1;
   stepsY = 1;
+    inputString.reserve(200);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
  //checkAlarm();
   //controlJoystick();
-  readSerial();
+  //readSerial();
   controlJoystick();
 }
 
