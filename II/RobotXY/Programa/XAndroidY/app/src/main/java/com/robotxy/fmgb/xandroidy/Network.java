@@ -42,7 +42,8 @@ public class Network extends AsyncTask<String,Void,String>{
     protected String doInBackground(String... urls) {
         String result = "";
         try{
-            URL url = new URL(urls[0]);
+            URL url = new URL(URLbase + urls[0]);
+            System.out.println("URL" + url);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             int statusCode = con.getResponseCode();
             if(statusCode != 200){
@@ -67,9 +68,10 @@ public class Network extends AsyncTask<String,Void,String>{
         System.out.println("He terminado");
     }
 
-    Network(String dir, int port)
+    Network(String dir, String port)
     {
         URLbase = "http://" + dir + ":" + port;
+        System.out.println(URLbase);
     }
 
     boolean checkNetwork()

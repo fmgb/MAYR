@@ -6,4 +6,21 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
+    <string name="URL_connect">/connect</string>
+    <string name="URL_MoveXMMNeg">/movexmmneg</string>
+    <string name="URL_MoveYMMNeg">/moveymmneg</string>
+    <string name="URL_MoveXMMPos">/movexmmpos</string>
+    <string name="URL_MoveYMMPos">/moveymmpos</string>
+    <string name="URL_MoveXStepsNeg">/movexstepsneg</string>
+    <string name="URL_MoveYStepsNeg">/moveystepsneg</string>
+    <string name="URL_MoveXStepsPos">/movexstepspos</string>
+    <string name="URL_MoveYStepsPos">/moveystepspos</string>
+    <string name="URL_JoystickValue">/joystick/</string>
+    <string name="URL_Home">/home</string>
+    <string name="URL_Calibrate">/calibrate</string>
+    <string name="URL_Rearme">/rearme</string>
+    <string name="URL_getEndstop">/endstops</string>
+    <string name="URL_getAlarms">/alarms</string>
+    <string name="URL_getPosition">/getPosition</string>
+    <string name="URL_emergency">/emergency</string>
 </resources>

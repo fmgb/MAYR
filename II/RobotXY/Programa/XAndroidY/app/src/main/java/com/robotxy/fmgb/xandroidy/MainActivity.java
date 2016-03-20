@@ -16,7 +16,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.RadioButton;
 import android.widget.TextView;
+
+import com.google.android.gms.common.server.converter.StringToIntConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,17 +64,19 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+       /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
-        Network net = new Network();
+        });*/
+        //Network net = new Network();
 
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -96,7 +101,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickConectar(View view) {
-        net.execute("http://192.168.1.137:5000/");
+        TextView tIP = (TextView) findViewById(R.id.editTextIP);
+        TextView tPort = (TextView) findViewById(R.id.editTextPuerto);
+        net = new Network(tIP.getText().toString(), tPort.getText().toString());
+
+        net.execute("/connect");
+    }
+
+    public void onClickMoveMm(View view){ //FALTA INICIALIZAR EL NETWORK EN CADA Fragment.
+        /*TextView tIP = (TextView) findViewById(R.id.editTextIP);
+        TextView tPort = (TextView) findViewById(R.id.editTextPuerto);
+        net = new Network(tIP.getText().toString(), tPort.getText().toString());*/
+        TextView tvNumber = (TextView) findViewById(R.id.numberTextId);
+        RadioButton rbX = (RadioButton) findViewById(R.id.radioX);
+        RadioButton rbY = (RadioButton) findViewById(R.id.radioY);
+       // boolean isPositive = tvNumber.getText().toString().indexOf("-") ? true : false;
+        //Seleccionado eje X
+        if(rbX.isChecked())
+        {
+            //Si es positivo
+            if(tvNumber.getText().toString().indexOf("-") == -1)
+            {
+
+            }
+            else
+                net.execute(new URLS().MOVE_X_MM_NEG + tvNumber.getText().toString().substring(1));
+            System.out.println(new URLS().MOVE_X_MM_NEG + tvNumber.getText().toString().substring(1));
+        }
+       // System.out.println(rbX.isChecked());
+        String number = tvNumber.getText().toString();
+       // System.out.println(number);
     }
 
     /**

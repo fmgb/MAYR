@@ -1,7 +1,266 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:rotation="90"
+    android:rotation="0"
     >
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number|numberSigned"
+        android:ems="10"
+        android:id="@+id/numberTextId"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="33dp"
+        android:singleLine="true"
+        android:width="120dp" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Move Steps"
+        android:id="@+id/buttonSteps"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="27dp"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentRight="false" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Move mm"
+        android:id="@+id/buttonMm"
+        android:layout_below="@+id/buttonSteps"
+        android:layout_alignStart="@+id/buttonSteps"
+        android:layout_alignEnd="@+id/buttonSteps"
+        android:onClick="onClickMoveMm" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageButton"
+        android:layout_below="@+id/textStepsY"
+        android:layout_marginTop="66dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/buttonHome"
+        android:layout_toStartOf="@+id/textStepsY" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Home"
+        android:id="@+id/buttonHome"
+        android:layout_alignTop="@+id/buttonCalibrate"
+        android:layout_toStartOf="@+id/textStepsX" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/textViewWarning"
+        android:layout_below="@+id/buttonMm"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="27dp"
+        android:visibility="invisible"
+        android:text="textView" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Calibrate"
+        android:id="@+id/buttonCalibrate"
+        android:layout_below="@+id/textViewWarning"
+        android:layout_centerHorizontal="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Joystick"
+        android:id="@+id/checkBoxJoystick"
+        android:checked="true"
+        android:layout_below="@+id/buttonHome"
+        android:layout_toStartOf="@+id/buttonMm" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/textStepsX"
+        android:layout_marginTop="34dp"
+        android:layout_below="@+id/checkBoxJoystick"
+        android:layout_toEndOf="@+id/textView4"
+        android:visibility="invisible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/textStepsY"
+        android:layout_alignBottom="@+id/textView5"
+        android:layout_toEndOf="@+id/textView5"
+        android:visibility="invisible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Steps in X:"
+        android:id="@+id/textView4"
+        android:layout_alignTop="@+id/textStepsX"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Steps in Y:"
+        android:id="@+id/textView5"
+        android:layout_below="@+id/textStepsX"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="31dp" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@+id/textStepsX"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/radioGroup"
+        android:layout_toEndOf="@+id/checkBoxJoystick"
+        android:layout_above="@+id/radioAlarmX"
+        android:layout_alignStart="@+id/textView2">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" Min X"
+            android:id="@+id/radioMinX"
+            android:layout_gravity="right"
+            android:checked="false"
+            android:layout_marginRight="10dp"
+            android:enabled="false"
+            android:textColor="#000000" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Max X"
+            android:id="@+id/radioMaxX"
+            android:layout_gravity="right"
+            android:checked="false"
+            android:layout_marginRight="10dp"
+            android:focusable="false"
+            android:enabled="false"
+            android:textColor="#000000" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" Min Y"
+            android:id="@+id/radioMinY"
+            android:layout_gravity="right"
+            android:checked="false"
+            android:layout_marginRight="10dp"
+            android:enabled="false"
+            android:textColor="#000000" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Max Y"
+            android:id="@+id/radioMaxY"
+            android:layout_gravity="right"
+            android:checked="false"
+            android:layout_marginRight="10dp"
+            android:enabled="false"
+            android:textColor="#000000" />
+    </RadioGroup>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update"
+        android:id="@+id/buttonUpdate"
+        android:layout_below="@+id/checkBoxJoystick"
+        android:layout_alignEnd="@+id/checkBoxJoystick"
+        android:layout_above="@+id/radioGroup" />
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alarma X"
+        android:id="@+id/radioAlarmX"
+        android:layout_alignTop="@+id/imageButton"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/buttonCalibrate"
+        android:checked="false"
+        android:layout_alignStart="@+id/radioGroup"
+        android:enabled="false"
+        android:textColor="#000000" />
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alarma Y"
+        android:id="@+id/radioAlarmY"
+        android:checked="false"
+        android:layout_below="@+id/radioAlarmX"
+        android:layout_alignStart="@+id/radioAlarmX"
+        android:enabled="false"
+        android:textColor="#000000" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rearme"
+        android:id="@+id/buttonRearme"
+        android:layout_below="@+id/textViewWarning"
+        android:layout_alignEnd="@+id/buttonMm" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/buttonCalibrate"
+        android:layout_alignEnd="@+id/buttonCalibrate"
+        android:layout_above="@+id/textViewWarning"
+        android:layout_marginTop="20dp">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="X"
+            android:id="@+id/radioX"
+            android:checked="false"
+            android:layout_above="@+id/buttonMm"
+            android:layout_toEndOf="@+id/numberTextId" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Y"
+            android:id="@+id/radioY"
+            android:checked="false"
+            android:layout_below="@+id/radioX"
+            android:layout_alignStart="@+id/radioX" />
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Endstops:"
+        android:id="@+id/textView2"
+        android:layout_above="@+id/radioGroup"
+        android:layout_alignStart="@+id/buttonRearme" />
 
 </RelativeLayout>
