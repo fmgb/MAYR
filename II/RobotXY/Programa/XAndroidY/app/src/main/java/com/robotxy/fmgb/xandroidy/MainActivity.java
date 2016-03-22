@@ -27,6 +27,8 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.server.converter.StringToIntConverter;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -53,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     public static String Puerto = "0";
     public static Network net;
 
+    public int posXActual = 0;
+    public int posYActual = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -298,11 +302,66 @@ public class MainActivity extends AppCompatActivity {
         if(getURL != null) {
             String[] positions = getURL.split(",");
             positions[1] = positions[1].substring(0,positions[1].length()-1);
+            posXActual = Integer.parseInt(positions[0]);
+            posYActual = Integer.parseInt(positions[1]);
             System.out.println(positions[0] + "   " + positions[1]);
             SeekBar sbX = (SeekBar) findViewById(R.id.seekBarX);
             SeekBar sbY = (SeekBar) findViewById(R.id.seekBarY);
-            sbX.setProgress(Integer.parseInt(positions[0]));
-            sbY.setProgress(Integer.parseInt(positions[1]));
+            sbX.setProgress(posXActual);
+            sbY.setProgress(posYActual);
+            // TODO Para comprobar.
+            TextView tvXActual = (TextView) findViewById(R.id.tvPosActualX);
+            TextView tvYActual = (TextView) findViewById(R.id.tvPosActualY);
+            tvXActual.setText(posXActual);
+            tvYActual.setText(posYActual);
+        }
+    }
+
+
+
+    public void onClickSetPosition(View view) {
+        // TODO Realizar con .get() en el execute para mostrar la posicion actual.
+        conectarInternet();
+        String getURL = null;
+        try {
+            getURL = net.execute(new URLS().GET_POSITION).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        if (getURL != null) {
+            String[] positions = getURL.split(",");
+            positions[1] = positions[1].substring(0, positions[1].length() - 1);
+            posXActual = Integer.parseInt(positions[0]);
+            posYActual = Integer.parseInt(positions[1]);
+            SeekBar sbX = (SeekBar) findViewById(R.id.seekBarX);
+            SeekBar sbY = (SeekBar) findViewById(R.id.seekBarY);
+            int posXTarget = sbX.getProgress();
+            int posYTarget = sbY.getProgress();
+            int diffX = posXTarget - posXActual;
+            int diffY = posYTarget - posYActual;
+            //IF PARA COMPROBAR SI LA POSICION TARGET ES MAYOR O MENOR, y enviar los datos correspondientes.
+            if (diffX > 0) {
+                net.execute(new URLS().MOVE_X_MM_POS + diffX);
+            } else if (diffX < 0) {
+                // Ejecutar mover mm X Pos
+                diffX = diffX * -1;
+                net.execute(new URLS().MOVE_X_MM_NEG + diffX);
+            }
+            if (diffY > 0) {
+                // Ejecutar mover mm Y Neg
+                net.execute(new URLS().MOVE_Y_MM_POS + diffY);
+            } else if (posYActual < posYTarget) {
+                diffY = diffY * -1;
+                //Ejecutar mover mm Y POs
+                net.execute(new URLS().MOVE_Y_MM_NEG + diffY);
+            }
+            // TODO Para comprobar.
+            TextView tvXActual = (TextView) findViewById(R.id.tvPosActualX);
+            TextView tvYActual = (TextView) findViewById(R.id.tvPosActualY);
+            tvXActual.setText(posXTarget);
+            tvYActual.setText(posYTarget);
         }
     }
     /**

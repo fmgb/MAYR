@@ -97,7 +97,17 @@
         android:text="get Position"
         android:id="@+id/button"
         android:onClick="onClickGetPosition"
-        android:layout_below="@+id/tvPosActualX"
-        android:layout_centerHorizontal="true" />
+        android:layout_below="@+id/textView8"
+        android:layout_toEndOf="@+id/textView8" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SET Position"
+        android:id="@+id/buttonsetPosition"
+        android:onClick="onClickGetPosition"
+        android:layout_alignBottom="@+id/button"
+        android:layout_alignEnd="@+id/seekBarX" />
 
 </RelativeLayout>

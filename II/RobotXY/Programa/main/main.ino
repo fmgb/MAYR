@@ -95,8 +95,10 @@ void loop() {
 
 
   //TODO
-  /* POner emergencia en todos los while de movimientos
-   *  POner el setPosition de la aplicacion android
-   *  Quitar los SerialPrint
+  /* 
+   *  Controlar endstops en el joystick ** Solved
+   *  POner emergencia en todos los while de movimientos **Solved
+   *  POner el setPosition de la aplicacion android  ** TODO Comprobar el estado de los textview de la posicion actual.
+   *  Quitar los SerialPrint **Solved
    *  Seleccionar la velocidad desde la app
    */

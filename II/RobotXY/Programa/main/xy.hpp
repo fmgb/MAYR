@@ -317,7 +317,7 @@ void moveXmm(int mm)
       
       moveRight();
       
-      while(contadorTarget > contadorPasosX && digitalRead(I_FCX2) == LOW) 
+      while(contadorTarget > contadorPasosX && digitalRead(I_FCX2) == LOW && !emergencia) 
       {
         adaptVelocityXRight(stepsInicial,contadorTarget); 
       }
@@ -326,7 +326,7 @@ void moveXmm(int mm)
   else if (mm < 0)
     {
       moveLeft();
-      while(contadorTarget < contadorPasosX && digitalRead(I_FCX1) == LOW) 
+      while(contadorTarget < contadorPasosX && digitalRead(I_FCX1) == LOW && !emergencia) 
       {
         adaptVelocityXLeft(stepsInicial,contadorTarget);
       };
@@ -346,7 +346,7 @@ void moveYmm(int mm)
     {
       moveUp();
       
-      while(contadorTarget > contadorPasosY && digitalRead(I_FCY1) == LOW) 
+      while(contadorTarget > contadorPasosY && digitalRead(I_FCY1) == LOW && !emergencia) 
       { 
 	adaptVelocityYUp(stepsInicial,contadorTarget);
       }
@@ -355,7 +355,7 @@ void moveYmm(int mm)
   else if (mm < 0)
     {
       moveDown();
-      while(contadorTarget < contadorPasosY && digitalRead(I_FCY2) == LOW) 
+      while(contadorTarget < contadorPasosY && digitalRead(I_FCY2) == LOW && !emergencia) 
       {
 	adaptVelocityYDown(stepsInicial, contadorTarget);
 //  	adaptVelocityY(contadorPasosY - contadorTarget);
@@ -378,7 +378,7 @@ void moveXSteps(int steps)
      moveRight();
      //Serial.println("Derecha");
      //Serial.println(stepsTarget);
-     while(stepsTarget > contadorPasosX && digitalRead(I_FCX2) == LOW) 
+     while(stepsTarget > contadorPasosX && digitalRead(I_FCX2) == LOW && !emergencia) 
     {
       //Serial.println(contadorPasosX);
 	adaptVelocityXRight(stepsInicial,stepsTarget);
@@ -388,17 +388,17 @@ void moveXSteps(int steps)
   }
   else 
   {
-    Serial.println(contadorPasosX);
+    //Serial.println(contadorPasosX);
     int stepsTarget = contadorPasosX + steps;
-    Serial.println("Izquierda");
+    //Serial.println("Izquierda");
      moveLeft();
-      Serial.println(stepsTarget);
-     while(stepsTarget < contadorPasosX && digitalRead(I_FCX1) == LOW) 
+      //Serial.println(stepsTarget);
+     while(stepsTarget < contadorPasosX && digitalRead(I_FCX1) == LOW && !emergencia) 
      {
       //Serial.println(contadorPasosX);
 	adaptVelocityXLeft(stepsInicial,stepsTarget);
      };
-     Serial.println("Salgo");
+     //Serial.println("Salgo");
      stopMotorX();
   }
 
@@ -412,7 +412,7 @@ void moveYSteps(int steps) {
   int stepsTarget = contadorPasosY + steps;
 
      moveUp();
-     while(stepsTarget > contadorPasosY && digitalRead(I_FCY1) == LOW) 
+     while(stepsTarget > contadorPasosY && digitalRead(I_FCY1) == LOW && !emergencia) 
      {
 	adaptVelocityYUp(stepsInicial,stepsTarget);
 //	adaptVelocityY(stepsTarget - contadorPasosY);
@@ -421,17 +421,17 @@ void moveYSteps(int steps) {
   }
   else 
   {
-    Serial.println(contadorPasosY);
+   // Serial.println(contadorPasosY);
     int stepsTarget = contadorPasosY + steps;
-  Serial.println("Abajo");
+  //Serial.println("Abajo");
      moveDown();
-     Serial.println(stepsTarget);
-     while(stepsTarget < contadorPasosY && digitalRead(I_FCY2) == LOW) 
+    // Serial.println(stepsTarget);
+     while(stepsTarget < contadorPasosY && digitalRead(I_FCY2) == LOW && !emergencia) 
      {
 	adaptVelocityYDown(stepsInicial, stepsTarget);
   //	adaptVelocityY(contadorPasosY - stepsTarget);
      };
-     Serial.println("Salgo");
+     //Serial.println("Salgo");
      stopMotorY();
   }
 }
@@ -590,7 +590,7 @@ void selectVelocityY(unsigned short velocity)
 // motorSelect = 0 -> X ; motorSelect = 1 -> Y
 void motorHome(unsigned short motorSelect)
 {
-  Serial.print(digitalRead(I_CMARCHA));
+ // Serial.print(digitalRead(I_CMARCHA));
  // if(digitalRead(I_CMARCHA) == HIGH)
    // {
       if(motorSelect == 0)
@@ -601,7 +601,7 @@ void motorHome(unsigned short motorSelect)
           moveLeft();
           //delay(500);
           //delay(tWaitFC);
-          while(!digitalRead(I_FCX1) && !emergencia){ Serial.println("HOMEEX"); };
+          while(!digitalRead(I_FCX1) && !emergencia){ };
 
           
           contadorPasosX = 0;
@@ -620,7 +620,7 @@ void motorHome(unsigned short motorSelect)
           delay(50);
           moveDown();
          //delay(tWaitFC);
-          while(!digitalRead(I_FCY2)) { Serial.println("HOMEEY");};
+          while(!digitalRead(I_FCY2) && !emergencia) { };
           
           contadorPasosY = 0;
           moveUp();
@@ -646,7 +646,7 @@ void calibrate(unsigned short motor)
     {
       selectVelocityX(2);
       moveRight();
-      while(!digitalRead(I_FCX2)) { };
+      while(!digitalRead(I_FCX2) && !emergencia) { };
       
       int stepsXAux = contadorPasosX;
      /* Serial.print("\nSteps motor X per");
@@ -655,7 +655,7 @@ void calibrate(unsigned short motor)
       Serial.println(stepsXAux);
       *///Serial.println(contador
       moveLeft();
-      while(digitalRead(I_FCX2)){};
+      while(digitalRead(I_FCX2) && !emergencia){};
       stopMotorX();
       
       stepsX = (stepsXAux)/((float)mmX);
@@ -665,7 +665,7 @@ void calibrate(unsigned short motor)
     {
       selectVelocityX(2);
       moveUp();
-      while(!digitalRead(I_FCY1)) { };
+      while(!digitalRead(I_FCY1) && !emergencia) { };
       
       int stepsYAux = contadorPasosY;
       //Serial.println("\nSteps per");
@@ -673,7 +673,7 @@ void calibrate(unsigned short motor)
       //Serial.println(": ");
       //Serial.printlnln(stepsYAux);
       moveDown();
-      while(digitalRead(I_FCY1)){};
+      while(digitalRead(I_FCY1) && !emergencia){};
       
       stopMotorY();
       
@@ -728,14 +728,14 @@ void rearme()
 
 void interruptEmergency()
 {
-  Serial.println("EMERGENCIA");
+  //Serial.println("EMERGENCIA");
   emergencia = true;
   stopMotorX();
   stopMotorY();
   deactiveMotors();
   delayMicroseconds(10000);
   //TODO Comprobar si es LOW o HIGH en el de emergencia.
-  while(digitalRead(INT_EMERG) == LOW) { Serial.println("HAOAOA");};
+  while(digitalRead(INT_EMERG) == LOW) { };
   //TODO
   //rearme();
 }
@@ -772,7 +772,8 @@ void controlJoystick()
     selectVelocityX(2);
     selectVelocityY(2);
    // Serial.println("JOYSTICK");
-      if(digitalRead(I_JKIZQ) == HIGH)
+      if(digitalRead(I_JKIZQ) == HIGH && !digitalRead(I_FCX1))
+      //if(digitalRead(I_JKIZQ) == HIGH)
         {
          //  Serial.println("JOYSTICK1");
           delay(tWaitJoystick); //Tiempo para evitar falsas lecturas.
@@ -780,7 +781,7 @@ void controlJoystick()
 //          while(digitalRead(I_JKIZQ) == HIGH && digitalRead(I_FCX1) == LOW) {  };
 //          stopMotorX();
         }
-      if(digitalRead(I_JKDER) == HIGH)
+      if(digitalRead(I_JKDER) == HIGH && !digitalRead(I_FCX2))
         {
          //  Serial.println("JOYSTICK2");
           delay(tWaitJoystick);
@@ -788,7 +789,7 @@ void controlJoystick()
 //          while(digitalRead(I_JKDER) == HIGH && digitalRead(I_FCX2) == LOW) {  };
 //          stopMotorX();
         }
-      if(digitalRead(I_JKARR) == HIGH)
+      if(digitalRead(I_JKARR) == HIGH && !digitalRead(I_FCY1))
         {
            //Serial.println("JOYSTICK3");
           delay(tWaitJoystick);
@@ -796,7 +797,7 @@ void controlJoystick()
 //          while(digitalRead(I_JKARR) == HIGH && digitalRead(I_FCY1) == LOW) {  };
 //          stopMotorY();
         }
-      if(digitalRead(I_JKABA) == HIGH)
+      if(digitalRead(I_JKABA) == HIGH&& !digitalRead(I_FCY2))
         {
            //Serial.println("JOYSTICK4");
           delay(tWaitJoystick);
@@ -949,7 +950,7 @@ bool checkAliveMaster()
   time = millis();
 
 
-  Serial.println("Request done"); //Borrar esto
+ // Serial.println("Request done"); //Borrar esto
   bool isAlive = false;
 
 
@@ -964,7 +965,7 @@ bool checkAliveMaster()
 
       if (strcmp(buffer, "OK")) {
         isAlive = true;
-        Serial.println("OK received"); //Borrar esto
+      //  Serial.println("OK received"); //Borrar esto
       }
 
       cTime = millis();
@@ -974,10 +975,10 @@ bool checkAliveMaster()
     
   }
 
-    if (!isAlive)
+ /*   if (!isAlive)
     Serial.println("Tengo el control"); //Borrar esto
   else
-    Serial.println("Esclavo responde"); //Borrar esto
+    Serial.println("Esclavo responde"); //Borrar esto*/
 tiempoRequestMaster = millis();
   return isAlive;
 
