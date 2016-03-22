@@ -3,6 +3,9 @@ package com.robotxy.fmgb.xandroidy;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,6 +21,7 @@ import java.net.URL;
 public class Network extends AsyncTask<String,Void,String>{
 
     String URLbase = "http://192.168.1.137:5000";
+    public String conectado = "a";
     Network()
     {
 
@@ -53,6 +57,8 @@ public class Network extends AsyncTask<String,Void,String>{
             {
                 InputStream in = new BufferedInputStream(con.getInputStream());
                 result = readStream(in);
+                System.out.println("RESULT" + result);
+                conectado = result;
                 //System.out.println(readStream(in));
             }
         } catch(Exception e)
@@ -65,13 +71,18 @@ public class Network extends AsyncTask<String,Void,String>{
 
     @Override
     protected void onPostExecute(String cantidadProcesados) {
-        System.out.println("He terminado");
+
     }
 
     Network(String dir, String port)
     {
         URLbase = "http://" + dir + ":" + port;
-        System.out.println(URLbase);
+       //System.out.println(URLbase);
+    }
+
+    public void prueba()
+    {
+
     }
 
     boolean checkNetwork()

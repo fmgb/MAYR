@@ -5,7 +5,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include "Arduino.h"
-
+#include <WSWire.h>
 /**********************************************/
 //
 //            CONSTANTES DEL SISTEMA
@@ -135,11 +135,14 @@ int tWait = 3000;
 int tWaitFC = 2000;
 int maxVelocityPoint = 750;
 int midVelocityPoint = 250;
+int tiempoRequestMaster = 5000;
+#define TWAITI2C 0
+#define I2CDIR 8
 float THRESHOLDX_1 = 0.1;
 float THRESHOLDX_2 = 0.2;
 float THRESHOLDY_1 = 0.1;
 float THRESHOLDY_2 = 0.2;
-
+bool emergencia = false;
 
 void intEncoderX();
 void intEncoderY();
@@ -165,13 +168,22 @@ void adaptVelocityX(int remainingSteps);
 void adaptVelocityY(int remainingSteps);
 void selectVelocityX(unsigned short velocity);
 void selectVelocityY(unsigned short velocity);
-void writePosition(unsigned short axis);
+void writePosition();
 
-void writePosition(unsigned short axis)
+
+
+void setPosition(int value,int axis)
 {
   if(axis == 0)
-    Serial.print(contadorPasosX/(int)stepsX);
+    contadorPasosX = value;
   else
+    contadorPasosY = value;
+}
+
+void writePosition()
+{
+    Serial.print(contadorPasosX/(int)stepsX);
+    Serial.print(",");
     Serial.print(contadorPasosY/(int)stepsY);
   Serial.print("\n");
 }
@@ -376,16 +388,17 @@ void moveXSteps(int steps)
   }
   else 
   {
-    int stepsTarget = contadorPasosX - steps;
-    //Serial.println("Izquierda");
+    Serial.println(contadorPasosX);
+    int stepsTarget = contadorPasosX + steps;
+    Serial.println("Izquierda");
      moveLeft();
-      //Serial.println(stepsTarget);
+      Serial.println(stepsTarget);
      while(stepsTarget < contadorPasosX && digitalRead(I_FCX1) == LOW) 
      {
       //Serial.println(contadorPasosX);
 	adaptVelocityXLeft(stepsInicial,stepsTarget);
      };
-     //Serial.println("Salgo");
+     Serial.println("Salgo");
      stopMotorX();
   }
 
@@ -408,28 +421,35 @@ void moveYSteps(int steps) {
   }
   else 
   {
-    int stepsTarget = contadorPasosY - steps;
-
+    Serial.println(contadorPasosY);
+    int stepsTarget = contadorPasosY + steps;
+  Serial.println("Abajo");
      moveDown();
+     Serial.println(stepsTarget);
      while(stepsTarget < contadorPasosY && digitalRead(I_FCY2) == LOW) 
      {
 	adaptVelocityYDown(stepsInicial, stepsTarget);
   //	adaptVelocityY(contadorPasosY - stepsTarget);
      };
+     Serial.println("Salgo");
      stopMotorY();
   }
 }
 
 void checkAlarm()
 {
-  if(I_ALARMAX || I_ALARMAY)
+  int alarmaX = digitalRead(I_ALARMAX);
+  int alarmaY = digitalRead(I_ALARMAY);
+  if(alarmaX || alarmaY)
   {
     stopMotorY();
     stopMotorX();
     activeBrake();
     bool led = HIGH;
-    while(I_ALARMAX || I_ALARMAY) 
+    while(alarmaX || alarmaY) 
     {
+      alarmaX = digitalRead(I_ALARMAX);
+    alarmaY = digitalRead(I_ALARMAY);
       digitalWrite(O_PAX,led);
       digitalWrite(O_PAY,led);
       delay(tWaitLedAlarm);
@@ -507,7 +527,12 @@ void initPinModes(unsigned short baudrate)
   pinMode(O_PAY,OUTPUT);
 
 
-  //INTERRUPTS
+
+}
+
+void initInterruptions()
+{
+    //INTERRUPTS
   //TODO CHANGE THE INTERRUPTION MODE.
   attachInterrupt(0,intEncoderX,RISING);
   attachInterrupt(1,intEncoderY,RISING);
@@ -576,7 +601,8 @@ void motorHome(unsigned short motorSelect)
           moveLeft();
           //delay(500);
           //delay(tWaitFC);
-          while(!digitalRead(I_FCX1)){ };
+          while(!digitalRead(I_FCX1) && !emergencia){ Serial.println("HOMEEX"); };
+
           
           contadorPasosX = 0;
           moveRight();
@@ -594,7 +620,7 @@ void motorHome(unsigned short motorSelect)
           delay(50);
           moveDown();
          //delay(tWaitFC);
-          while(!digitalRead(I_FCY2)) { };
+          while(!digitalRead(I_FCY2)) { Serial.println("HOMEEY");};
           
           contadorPasosY = 0;
           moveUp();
@@ -660,22 +686,18 @@ void calibrate(unsigned short motor)
 
 void intEncoderX()
 {
-  //Serial.println("EncoderX");
   if(dirMotorX == DIRBACK)
     contadorPasosX--;
   else
-        contadorPasosX++;
-  //Serial.println(contadorPasosX);
+    contadorPasosX++;
 }
 
 void intEncoderY()
-{ //TODO Cambiar pasos
-   //Serial.println("EncoderY");
+{
   if(dirMotorY != DIRBACK)
     contadorPasosY--;
   else
     contadorPasosY++;
-     // Serial.println(contadorPasosY);
 }
 
 void intActivateEndstop()
@@ -698,7 +720,7 @@ void intActivateEndstop()
 
 void rearme()
 {
-  Serial.println("REARME");
+  emergencia = false;
   selectVelocityX(1);
   selectVelocityY(1);
     activeMotors();
@@ -707,27 +729,32 @@ void rearme()
 void interruptEmergency()
 {
   Serial.println("EMERGENCIA");
+  emergencia = true;
   stopMotorX();
   stopMotorY();
   deactiveMotors();
   delayMicroseconds(10000);
   //TODO Comprobar si es LOW o HIGH en el de emergencia.
-  while(digitalRead(INT_EMERG) == LOW) { };
+  while(digitalRead(INT_EMERG) == LOW) { Serial.println("HAOAOA");};
   //TODO
   //rearme();
 }
 
 unsigned short getStateEndStops()
 {
-  unsigned short endStopAct = 0000;
+  short endStopAct = 0000;
+  //Serial.println("ENDSTOPS");
   if(digitalRead(I_FCX1) == HIGH)
     endStopAct += 1000;
   if(digitalRead(I_FCX2) == HIGH)
-    endStopAct += 0100;
+    endStopAct += 100;
   if(digitalRead(I_FCY1) == HIGH)
-    endStopAct += 0010;
+    endStopAct += 10;
   if(digitalRead(I_FCY2) == HIGH)
-    endStopAct += 0001;
+    endStopAct += 1;
+    Serial.print("Endstops:");
+  Serial.print(endStopAct);
+  Serial.print("\n");
   return endStopAct;
 }
 
@@ -791,15 +818,6 @@ LOW && digitalRead(I_JKARR) == LOW)
 // 4149 X
 // 3223 Y
 
-void setPosition(int value,int axis)
-{
-  if(axis == 0)
-  contadorPasosX = value;
-  else
-  contadorPasosY = value;
-}
-
-
 void serialEvent()
 {
   while (Serial.available()) 
@@ -807,48 +825,55 @@ void serialEvent()
     int action = Serial.parseInt();
     int axis = Serial.parseInt();
     int value = Serial.parseInt();
-    Serial.print("action:");
+   /*Serial.print("actIon:");
     Serial.print(action);
     Serial.print("Axis:");
     Serial.print(axis);
     Serial.print("Value");
-    Serial.println(value);
+    Serial.println(value);*/
     if (Serial.read() == '\n') {
       if (!useJoystick)
       {
   	switch(action)
 	{
 	  case 0:
+      //Serial.println("Entrado en 0");
 	    if(axis == 0)
 	       moveXmm(value);
 	    else
 	       moveYmm(value);
 	  break;
  	  case 1:
+    //Serial.println("Entrado en 1");
 	    if(axis == 0)
 	       moveXmm(value*-1);
 	    else
 	       moveYmm(value*-1);
 	  break;
 	  case 2:
+   //Serial.println("Entrado en 2");
 	    if(axis == 0)
 	       moveXSteps(value);
 	    else
 	       moveYSteps(value);
 	  break;
 	  case 3:
+   //Serial.println("Entrado en 3");
 	    if(axis == 0)
 	       moveXSteps(value*-1);
 	    else
 	       moveYSteps(value*-1);
 	  break;
 	  case 4:
+   //Serial.println("Entrado en 4");
 	    calibrate(axis);
 	  break;
 	  case 5:
+   //Serial.println("Entrado en 5");
 	    motorHome(axis);
 	  break;
 	  case 6:
+   //Serial.println("Entrado en 6");
       if (!value)
       {
         stopMotorX();
@@ -857,17 +882,31 @@ void serialEvent()
 	    useJoystick = value;
 	  break;
 	  case 7:
-	    writePosition(axis);
+   //Serial.println("Entrado en 7");
+	    writePosition();
 	  break;
     case 8:
+    //Serial.println("Entrado en 8");
       setPosition(value,axis);
     break;
     case 9:
+    //Serial.println("Entrado en 9");
       rearme();
     break;
     case 10:
+    //Serial.println("Entrado en 10");
       deactiveMotors();
     break;
+    case 11:
+    //Serial.println("Entrado en 11");
+    //Get endstops
+    getStateEndStops();
+      //Serial.println(getStateEndStops());
+    break;
+    case 12:
+    //Serial.println("Entrado en 12");
+      interruptEmergency();
+      break;
 	  default:
 	    Serial.print("He recibido");
 	    Serial.println(action);
@@ -876,20 +915,92 @@ void serialEvent()
       }
 	else
 	{
-  Serial.println("Joystick");
+  //Serial.println("Joystick");
 	  if(action == 6)
 	    useJoystick = value;
     else if(action == 7)
-      writePosition(axis);
+      writePosition();
     else if(action == 9)
         rearme();
     else if(action == 10)
         deactiveMotors();
+    else if(action == 12)
+        interruptEmergency();
+    else if(action == 11)
+        getStateEndStops();
+        
 	}
     }
   }
 
 
+}
+
+
+bool checkAliveMaster()
+{
+  if((millis() - tiempoRequestMaster) > TWAITI2C)
+  {
+  unsigned long time;
+  unsigned long cTime;
+
+  char buffer[20] = "";
+  Wire.requestFrom(I2CDIR, 2);
+  time = millis();
+
+
+  Serial.println("Request done"); //Borrar esto
+  bool isAlive = false;
+
+
+  cTime = time;
+  int cBuffer = 0;
+
+  while (!isAlive && (cTime - time) < 5000) {
+    while (Wire.available() && !isAlive ){//&& (cTime - time) < 5000) {
+      buffer[cBuffer] = Wire.read();
+      
+      ++cBuffer;
+
+      if (strcmp(buffer, "OK")) {
+        isAlive = true;
+        Serial.println("OK received"); //Borrar esto
+      }
+
+      cTime = millis();
+      
+    }
+    cTime = millis();
+    
+  }
+
+    if (!isAlive)
+    Serial.println("Tengo el control"); //Borrar esto
+  else
+    Serial.println("Esclavo responde"); //Borrar esto
+tiempoRequestMaster = millis();
+  return isAlive;
+
+  }
+  else
+    return true;
+   // delay(TWAITI2C);
+}
+
+
+void initMaster()
+{
+  Wire.begin();                // join i2c bus 
+}
+
+void requestEvent() {   // Cuando el maestro se lo solicite, el esclavo respondera OK
+  Wire.write("OK");
+}
+
+void initSlave()
+{
+  Wire.begin(I2CDIR);                // join i2c bus 
+  Wire.onRequest(requestEvent);       // registrar evento
 }
 
 #endif

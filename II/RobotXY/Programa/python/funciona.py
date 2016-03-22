@@ -5,7 +5,9 @@ from flask import Flask
 
 app = Flask(__name__)
 
-puerto = '/dev/ttyUSB0'
+#puerto = '/dev/ttyUSB0'
+puerto = '/dev/ttyACM1'
+ser = serial.Serial(puerto,9600)
 
 @app.route("/")
 def hello():
@@ -16,12 +18,12 @@ def connect(port):
 	ser = serial.Serial(puerto,port)
 	return "OK"
 
-@app.route("/getPosition/<int:axis>",methods=["GET"])
-def getPosition(axis):
+@app.route("/getPosition",methods=["GET"])
+def getPosition():
 #	status =  Robotxy().status()
 #	puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
-	cadenaSerial = '7 ' + str(axis) + ' 0\n'
+#	ser = serial.Serial(puerto,9600)
+	cadenaSerial = '7 0 0\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	#status = "l"
 	line = ser.readline()
@@ -35,7 +37,7 @@ def getPosition(axis):
 @app.route("/moveXmmPos/<int:mm>",methods=["GET"])
 def moveXmmPos(mm):
 #	puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+#	ser = serial.Serial(puerto,9600)
 	cadenaSerial = '0 0 ' + str(mm) + '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"
@@ -43,7 +45,7 @@ def moveXmmPos(mm):
 @app.route("/moveYmmPos/<int:mm>",methods=["GET"])
 def moveYmmPos(mm):
 #	puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+#	ser = serial.Serial(puerto,9600)
 	cadenaSerial = '0 1 ' + str(mm)+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"
@@ -52,7 +54,7 @@ def moveYmmPos(mm):
 @app.route("/moveXmmNeg/<int:mm>",methods=["GET"])
 def moveXmmNeg(mm):
 #	puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '1 0 ' + str(mm)+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"
@@ -60,7 +62,7 @@ def moveXmmNeg(mm):
 @app.route("/moveYmmNeg/<int:mm>",methods=["GET"])
 def moveYmmNeg(mm):
 	#puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '1 1 ' + str(mm)+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"
@@ -70,7 +72,7 @@ def moveYmmNeg(mm):
 @app.route("/moveXstepsPos/<int:steps>",methods=["GET"])
 def moveXstepsPos(steps):
 	#puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '2 0 ' + str(steps)+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"
@@ -79,7 +81,7 @@ def moveXstepsPos(steps):
 @app.route("/moveYstepsPos/<int:steps>",methods=["GET"])
 def moveYstepsPos(steps):
 	#puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '2 1 ' + str(steps)+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"
@@ -89,7 +91,7 @@ def moveYstepsPos(steps):
 @app.route("/moveXstepsNeg/<int:steps>",methods=["GET"])
 def moveXstepsNeg(steps):
 	#puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '3 0 ' + str(steps)+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"
@@ -98,7 +100,7 @@ def moveXstepsNeg(steps):
 @app.route("/moveYstepsNeg/<int:steps>",methods=["GET"])
 def moveYstepsNeg(steps):
 	#puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '3 1 ' + str(steps)+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"
@@ -107,7 +109,7 @@ def moveYstepsNeg(steps):
 @app.route("/calibrate/<int:axis>",methods=["GET"])
 def calibrate(axis):
 	#puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '4 ' + str(axis) + ' 0\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "CALIBRATING"
@@ -116,7 +118,7 @@ def calibrate(axis):
 @app.route("/home/<int:axis>",methods=["GET"])
 def home(axis):
 	#puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '5 ' + str(axis) + ' 0\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "HOMING"
@@ -125,7 +127,7 @@ def home(axis):
 @app.route("/joystick/<int:value>",methods=["GET"])
 def joystick(value):
 	#puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '6 0 ' + str(value)+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"
@@ -134,7 +136,7 @@ def joystick(value):
 @app.route("/rearme",methods=["GET"])
 def rearme():
 	#puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '9 0 0'+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"
@@ -142,14 +144,14 @@ def rearme():
 @app.route("/deactive",methods=["GET"])
 def deactive():
 	#puerto = '/dev/ttyUSB0'
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '10 0 0'+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"
 
 @app.route("/update",methods=["GET"])
 def update():
-	ser = serial.Serial(puerto,9600);
+	#ser = serial.Serial(puerto,9600);
 	cadenaSerial = '11 0 0'+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	result = ser.readline()
@@ -158,7 +160,7 @@ def update():
 @app.route('/setPosition/<int:position>',methods=["GET"])
 def setPosition(position):
 	newPosition = '8 0 %d\n' % position
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 #	print(newPosition)
 	ser.write(newPosition.encode('utf-8'))
 	#statu = ser.readline()
@@ -166,7 +168,7 @@ def setPosition(position):
 
 @app.route('/emergency',methods=["GET"])
 def emergency():
-	ser = serial.Serial(puerto,9600)
+	#ser = serial.Serial(puerto,9600)
 	cadenaSerial = '12 0 0'+ '\n'
 	ser.write(cadenaSerial.encode('utf-8'))
 	return "OK"

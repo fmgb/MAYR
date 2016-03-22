@@ -4,14 +4,34 @@
 String inputString = "";
 
 
+#define NONE 2
+#define MASTER 1
+#define SLAVE 0
+#define ROL NONE 
+
+ bool isAlive = true;
+
+
+
+
 void setup() {
   // put your setup code here, to run once:
   initPinModes(9600);
+  if (ROL == SLAVE)
+  {
+    initInterruptions();
+    initSlave();
+  
+  }else if (ROL == MASTER){
+    initMaster();
+  }
+  else if(ROL == NONE)
+    initInterruptions();
   pinMode(13,OUTPUT);
   //Serial.println("SETUP");
   activeMotors();
   //moveUp();
-    
+  
   /*  activeBrake();
   motorHome(0);
   motorHome(1);
@@ -35,10 +55,23 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
- //checkAlarm();
-  //controlJoystick();
-  //readSerial();
-  controlJoystick();
+  
+  if(ROL == MASTER && isAlive){
+    isAlive = checkAliveMaster();
+    if(!isAlive)
+      initInterruptions();
+  }
+  if(!isAlive && ROL == MASTER)
+  {
+    //digitalWrite(13,HIGH);
+    checkAlarm();
+    controlJoystick();
+  }else if(ROL == SLAVE || ROL == NONE)
+  {
+    //digitalWrite(13,HIGH);
+    checkAlarm();
+    controlJoystick();
+  }
 }
 
 /* void loop()
@@ -47,3 +80,23 @@ void loop() {
    readSerial();
    controlJoystick();
  */
+
+
+ // TODO TEST
+ /*
+  * Probar Joystick en los finales de carrera
+  * Probar aplicacion Android
+  * todos los movimientosla 
+  * Boton de emergencia y rearme
+  * Velocidades
+  * checkAlarms
+  * Endstops
+  */
+
+
+  //TODO
+  /* POner emergencia en todos los while de movimientos
+   *  POner el setPosition de la aplicacion android
+   *  Quitar los SerialPrint
+   *  Seleccionar la velocidad desde la app
+   */

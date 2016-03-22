@@ -3,6 +3,7 @@ package com.robotxy.fmgb.xandroidy;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -16,13 +17,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.Checkable;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.google.android.gms.common.server.converter.StringToIntConverter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,12 +43,15 @@ public class MainActivity extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
+    private ProgressBar pbVertical = null;
+    private ProgressBar pbHorizontal = null;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-
-    private Network net;
+    public static String IP = "0";
+    public static String Puerto = "0";
+    public static Network net;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +70,11 @@ public class MainActivity extends AppCompatActivity {
 
         mSectionsPagerAdapter.addFragment(PlaceholderFragment.newInstance(R.layout.fragment_control));
         mSectionsPagerAdapter.addFragment(PlaceholderFragment.newInstance(R.layout.fragment_main));
-
+        mSectionsPagerAdapter.addFragment(PlaceholderFragment.newInstance(R.layout.fragment_status));
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+       // pbHorizontal = (ProgressBar) findViewById(R.id//.progressBarHorizontal);
+        //pbVertical = (ProgressBar) findViewById(R.id.progressBarVertical);
 
        /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -100,19 +112,35 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void conectarInternet()
+    {
+        net = new Network(IP, Puerto);
+    }
+
     public void onClickConectar(View view) {
         TextView tIP = (TextView) findViewById(R.id.editTextIP);
         TextView tPort = (TextView) findViewById(R.id.editTextPuerto);
-        net = new Network(tIP.getText().toString(), tPort.getText().toString());
-
-        net.execute("/connect");
+        IP = tIP.getText().toString();
+        Puerto = tPort.getText().toString();
+        conectarInternet();
+        String result;
+        TextView tvBaud = (TextView) findViewById(R.id.editTextBaudios);
+        String baud = tvBaud.getText().toString();
+        net.execute(new URLS().CONNECT + baud);
+        result = net.conectado;
+        System.out.println(result);
+        //Intentar añadir un temporizador
+        TextView tView = (TextView) findViewById(R.id.textViewConectado);
+        tView.setText("Conectado");
+        Button button = (Button)  findViewById(R.id.buttonConnect);
+        button.setText("Desconectar");
     }
 
-    public void onClickMoveMm(View view){ //FALTA INICIALIZAR EL NETWORK EN CADA Fragment.
-        /*TextView tIP = (TextView) findViewById(R.id.editTextIP);
-        TextView tPort = (TextView) findViewById(R.id.editTextPuerto);
-        net = new Network(tIP.getText().toString(), tPort.getText().toString());*/
+    public void onClickMoveMm(View view){
+        conectarInternet();
+
         TextView tvNumber = (TextView) findViewById(R.id.numberTextId);
+        String value = tvNumber.getText().toString();
         RadioButton rbX = (RadioButton) findViewById(R.id.radioX);
         RadioButton rbY = (RadioButton) findViewById(R.id.radioY);
        // boolean isPositive = tvNumber.getText().toString().indexOf("-") ? true : false;
@@ -120,19 +148,163 @@ public class MainActivity extends AppCompatActivity {
         if(rbX.isChecked())
         {
             //Si es positivo
-            if(tvNumber.getText().toString().indexOf("-") == -1)
-            {
-
-            }
+            if(value.indexOf("-") == -1)
+                net.execute(new URLS().MOVE_X_MM_POS + value);
             else
-                net.execute(new URLS().MOVE_X_MM_NEG + tvNumber.getText().toString().substring(1));
-            System.out.println(new URLS().MOVE_X_MM_NEG + tvNumber.getText().toString().substring(1));
+                net.execute(new URLS().MOVE_X_MM_NEG + value.substring(1));
         }
-       // System.out.println(rbX.isChecked());
-        String number = tvNumber.getText().toString();
-       // System.out.println(number);
+        else if(rbY.isChecked())
+        {
+            if(value.indexOf("-") == -1)
+                net.execute(new URLS().MOVE_Y_MM_POS + value);
+            else
+                net.execute(new URLS().MOVE_Y_MM_NEG + value.substring(1));
+        }
     }
 
+
+    public void onClickMoveSteps(View view){
+        conectarInternet();
+
+        TextView tvNumber = (TextView) findViewById(R.id.numberTextId);
+        String value = tvNumber.getText().toString();
+        RadioButton rbX = (RadioButton) findViewById(R.id.radioX);
+        RadioButton rbY = (RadioButton) findViewById(R.id.radioY);
+        // boolean isPositive = tvNumber.getText().toString().indexOf("-") ? true : false;
+        //Seleccionado eje X
+        if(rbX.isChecked())
+        {
+            //Si es positivo
+            if(value.indexOf("-") == -1)
+                net.execute(new URLS().MOVE_X_STEPS_POS + value);
+            else
+                net.execute(new URLS().MOVE_X_STEPS_NEG + value.substring(1));
+        }
+        else if(rbY.isChecked())
+        {
+            if(value.indexOf("-") == -1)
+                net.execute(new URLS().MOVE_Y_STEPS_POS + value);
+            else
+                net.execute(new URLS().MOVE_Y_STEPS_NEG + value.substring(1));
+        }
+    }
+
+    public void onClickHome(View view)
+    {
+        RadioButton rbX = (RadioButton) findViewById(R.id.radioX);
+        RadioButton rbY = (RadioButton) findViewById(R.id.radioY);
+        conectarInternet();
+        if(rbX.isChecked())
+            net.execute(new URLS().HOME + 0);
+        else
+            net.execute(new URLS().HOME + 1);
+    }
+
+
+    public void onClickCalibrate(View view)
+    {
+        RadioButton rbX = (RadioButton) findViewById(R.id.radioX);
+        RadioButton rbY = (RadioButton) findViewById(R.id.radioY);
+        conectarInternet();
+        if(rbX.isChecked())
+            net.execute(new URLS().CALIBRATE + 0);
+        else
+            net.execute(new URLS().CALIBRATE + 1);
+    }
+
+    public void onClickRearme(View view)
+    {
+        conectarInternet();
+        net.execute(new URLS().REARME);
+    }
+
+    public void onClickUpdate(View view)
+    {
+        conectarInternet();
+        String update = "";
+        //String result = net.doInBackground(new URLS().GET_ALARMS);
+        try {
+            update = net.execute(new URLS().UPDATE).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        //Adapt the result to GET to format endstops
+        update = update.substring(9,update.length()-1);
+        RadioButton rbMinX = (RadioButton) findViewById(R.id.radioMinX);
+        RadioButton rbMinY = (RadioButton) findViewById(R.id.radioMinY);
+        RadioButton rbMaxX = (RadioButton) findViewById(R.id.radioMaxX);
+        RadioButton rbMaxY = (RadioButton) findViewById(R.id.radioMaxY);
+        int endstops = Integer.parseInt(update);
+        if(endstops/1000 == 1)
+            rbMinX.setChecked(true);
+        else
+            rbMinX.setChecked(false);
+            endstops %= 1000;
+
+        if(endstops/100 == 1)
+            rbMaxX.setChecked(true);
+        else
+            rbMaxX.setChecked(false);
+        endstops %= 100;
+
+        if(endstops/10 == 1)
+            rbMaxY.setChecked(true);
+        else
+            rbMaxY.setChecked(false);
+        endstops %= 10;
+
+        if(endstops == 1)
+            rbMinY.setChecked(true);
+        else
+            rbMinY.setChecked(false);
+
+        TextView tvStepsX = (TextView) findViewById(R.id.textStepsX);
+        TextView tvStepsY = (TextView) findViewById(R.id.textStepsY);
+        tvStepsX.setVisibility(View.VISIBLE);
+        tvStepsY.setVisibility(View.VISIBLE);
+    }
+
+    public void onClickEmergency(View view)
+    {
+        conectarInternet();
+        net.execute(new URLS().EMERGENCIA);
+    }
+
+    public void onClickJoystick(View view)
+    {
+        conectarInternet();
+        CheckBox joystick = (CheckBox) findViewById(R.id.checkBoxJoystick);
+        if(joystick.isChecked())
+            net.execute(new URLS().JOYSTICK + 1);
+        else
+            net.execute(new URLS().JOYSTICK + 0);
+            System.out.println(new URLS().JOYSTICK + 0);
+    }
+
+    public void onClickGetPosition(View view)
+    {
+        // TODO Realizar con .get() en el execute para mostrar la posicion actual.
+        conectarInternet();
+        String getURL = null;
+        try {
+            getURL = net.execute(new URLS().GET_POSITION).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        if(getURL != null) {
+            String[] positions = getURL.split(",");
+            positions[1] = positions[1].substring(0,positions[1].length()-1);
+            System.out.println(positions[0] + "   " + positions[1]);
+            SeekBar sbX = (SeekBar) findViewById(R.id.seekBarX);
+            SeekBar sbY = (SeekBar) findViewById(R.id.seekBarY);
+            sbX.setProgress(Integer.parseInt(positions[0]));
+            sbY.setProgress(Integer.parseInt(positions[1]));
+        }
+    }
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -164,17 +336,26 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+
             View rootView;
-            if( i == 0)
-                rootView = inflater.inflate(R.layout.fragment_control,container,false);
-            else if (i == 1)
+            if (i == 0) {
+                rootView = inflater.inflate(R.layout.fragment_control, container, false);
+                //i = 1;
+            } else if (i == 1) {
                 rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            else
-                rootView = inflater.inflate(R.layout.fragment_main, container, false);
+                //i = 2;
+            } else if (i == 2)
+            {
+                rootView = inflater.inflate(R.layout.fragment_status, container, false);
+                //i = 0;
+            }else
+                rootView = inflater.inflate(R.layout.fragment_status, container, false);
             //Para poner mas fragments ir anyadiendo else if
-            i = i +1;
+            i = (i +1)%3;
+            System.out.println(i);
             return rootView;
         }
+
     }
 
     /**
@@ -205,17 +386,19 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return this.fragments.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
+
             switch (position) {
                 case 0:
                     return "CONECTAR";
                 case 1:
                     return "CONTROL";
+                case 2:
+                    return "STATUS";
             }
             return null;
         }

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:rotation="0"
+    >
+
+
+    <SeekBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBarY"
+        android:max="3223"
+        android:layout_alignParentTop="true"
+        android:maxHeight="5000dp"
+        android:minHeight="350dp"
+        android:minWidth="1500dp"
+        android:progress="0"
+        android:rotation="-90"
+        android:indeterminate="false"
+        android:layout_alignParentStart="true"
+        android:clickable="false"
+        android:mirrorForRtl="false" />
+
+    <SeekBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBarX"
+        android:max="4183"
+        android:maxHeight="5000dp"
+        android:progress="0"
+        android:minWidth="300dp"
+        android:minHeight="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/seekBarY"
+        android:indeterminate="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="MAX: 1783"
+        android:id="@+id/textView3"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/seekBarX"
+        android:layout_marginStart="73dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="min: 0"
+        android:id="@+id/textView6"
+        android:layout_above="@+id/seekBarX"
+        android:layout_alignEnd="@+id/textView3" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="MAX: 2185"
+        android:id="@+id/textView7"
+        android:layout_below="@+id/seekBarX"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="min: 0"
+        android:id="@+id/textView8"
+        android:layout_alignTop="@+id/textView7"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="ActualY: 0"
+        android:id="@+id/tvPosActualY"
+        android:layout_marginBottom="126dp"
+        android:layout_above="@+id/textView6"
+        android:layout_alignEnd="@+id/textView3" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="ActualX: 0"
+        android:id="@+id/tvPosActualX"
+        android:layout_below="@+id/seekBarX"
+        android:layout_alignStart="@+id/tvPosActualY" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="get Position"
+        android:id="@+id/button"
+        android:onClick="onClickGetPosition"
+        android:layout_below="@+id/tvPosActualX"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
