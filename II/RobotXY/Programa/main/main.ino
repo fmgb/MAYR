@@ -70,8 +70,10 @@ void loop() {
   {
     //digitalWrite(13,HIGH);
     checkAlarm();
+    if(!endstopsActivate)
     controlJoystick();
   }
+  endstopsActivate = false;
 }
 
 /* void loop()

@@ -126,7 +126,7 @@ float stepsY = 0;
 
 bool dirMotorX = false; // False -> LEFT; True -> RIGHT
 bool dirMotorY = false; // False -> DOWN; True -> UP
-
+bool endstopsActivate = false;
 bool useJoystick = true;
 bool freno = false;
 int tWaitLedAlarm = 100;
@@ -240,6 +240,7 @@ void moveUp()
   digitalWrite(O_STFY,LOW);
   digitalWrite(O_STRY,HIGH);
   digitalWrite(O_PAY,HIGH);
+ // Serial.println("HOAAA");
   dirMotorY = false;
 }
 
@@ -596,7 +597,7 @@ void motorHome(unsigned short motorSelect)
       if(motorSelect == 0)
         {//Motor X
           //Serial.println("Homing X");
-          selectVelocityX(1);
+          selectVelocityX(2);
           stopMotorY();
           moveLeft();
           //delay(500);
@@ -614,7 +615,7 @@ void motorHome(unsigned short motorSelect)
       else if(motorSelect == 1)
         {// Motor Y
           //Serial.println("Homing Y");
-          selectVelocityY(1);
+          selectVelocityY(2);
           stopMotorX();
           deactiveBrake();
           delay(50);
@@ -703,19 +704,29 @@ void intEncoderY()
 void intActivateEndstop()
 {
   //Serial.printlnln("ENDSTOP");
+  endstopsActivate = true;
   if(digitalRead(I_FCX1) || digitalRead(I_FCX2))
     {
+      //Serial.println("INTER 2");
       stopMotorX();
-    }
+      /*if( digitalRead(I_FCX1))
+        moveRight();
+        else
+        moveLeft();
+        delay(1500);
+    */}
   else if (digitalRead(I_FCY1) || digitalRead(I_FCX2))
     {
+     // Serial.println("INTER 1");
       stopMotorY();
+      
     }
   else
     {
+    //Serial.println("INTERRUPCION");
       stopMotorY();
       stopMotorX();
-    }
+   }
 }
 
 void rearme()
@@ -776,7 +787,7 @@ void controlJoystick()
       //if(digitalRead(I_JKIZQ) == HIGH)
         {
          //  Serial.println("JOYSTICK1");
-          delay(tWaitJoystick); //Tiempo para evitar falsas lecturas.
+          //delay(tWaitJoystick); //Tiempo para evitar falsas lecturas.
           moveLeft();
 //          while(digitalRead(I_JKIZQ) == HIGH && digitalRead(I_FCX1) == LOW) {  };
 //          stopMotorX();
@@ -784,7 +795,7 @@ void controlJoystick()
       if(digitalRead(I_JKDER) == HIGH && !digitalRead(I_FCX2))
         {
          //  Serial.println("JOYSTICK2");
-          delay(tWaitJoystick);
+          //delay(tWaitJoystick);
           moveRight();
 //          while(digitalRead(I_JKDER) == HIGH && digitalRead(I_FCX2) == LOW) {  };
 //          stopMotorX();
@@ -792,15 +803,16 @@ void controlJoystick()
       if(digitalRead(I_JKARR) == HIGH && !digitalRead(I_FCY1))
         {
            //Serial.println("JOYSTICK3");
-          delay(tWaitJoystick);
+          //delay(tWaitJoystick);
           moveUp();
+          
 //          while(digitalRead(I_JKARR) == HIGH && digitalRead(I_FCY1) == LOW) {  };
 //          stopMotorY();
         }
       if(digitalRead(I_JKABA) == HIGH&& !digitalRead(I_FCY2))
         {
            //Serial.println("JOYSTICK4");
-          delay(tWaitJoystick);
+          //delay(tWaitJoystick);
           moveDown();
 //          while(digitalRead(I_JKABA) == HIGH && digitalRead(I_FCY2) == LOW) {  };
 //          stopMotorY();

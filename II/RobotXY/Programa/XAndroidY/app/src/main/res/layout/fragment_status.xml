@@ -104,10 +104,21 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SET Position"
+        android:text="X"
         android:id="@+id/buttonsetPosition"
-        android:onClick="onClickGetPosition"
-        android:layout_alignBottom="@+id/button"
-        android:layout_alignEnd="@+id/seekBarX" />
+        android:onClick="onClickSetPositionX"
+        android:layout_alignTop="@+id/button"
+        android:layout_toStartOf="@+id/textView7"
+        android:layout_marginEnd="39dp" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Y"
+        android:id="@+id/button2"
+        android:onClick="onClickSetPositionY"
+        android:layout_alignTop="@+id/buttonsetPosition"
+        android:layout_toEndOf="@+id/buttonsetPosition" />
 
 </RelativeLayout>
