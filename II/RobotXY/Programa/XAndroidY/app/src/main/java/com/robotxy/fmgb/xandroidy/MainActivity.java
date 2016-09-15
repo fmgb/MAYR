@@ -323,18 +323,7 @@ public class MainActivity extends AppCompatActivity {
         // TODO Realizar con .get() en el execute para mostrar la posicion actual.
         conectarInternet();
         String getURL = null;
-        /*try {
-            getURL = net.execute(new URLS().GET_POSITION).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }*/
-        /*if (getURL != null) {
-            String[] positions = getURL.split(",");
-            positions[1] = positions[1].substring(0, positions[1].length() - 1);
-            posXActual = Integer.parseInt(positions[0]);
-            posYActual = Integer.parseInt(positions[1]);*/
+
             SeekBar sbX = (SeekBar) findViewById(R.id.seekBarX);
             SeekBar sbY = (SeekBar) findViewById(R.id.seekBarY);
             int posXTarget = sbX.getProgress();
@@ -351,14 +340,7 @@ public class MainActivity extends AppCompatActivity {
                 diffX = diffX * -1;
                 net.execute(new URLS().MOVE_X_STEPS_NEG + diffX);
             }
-            /*if (diffY > 0) {
-                // Ejecutar mover mm Y Neg
-                net.execute(new URLS().MOVE_Y_STEPS_POS + diffY);
-            } else if (diffY < 0) {
-                diffY = diffY * -1;
-                //Ejecutar mover mm Y POs
-                net.execute(new URLS().MOVE_Y_STEPS_NEG + diffY);
-            }*/
+
             // TODO Para comprobar.
            /* TextView tvXActual = (TextView) findViewById(R.id.tvPosActualX);
             TextView tvYActual = (TextView) findViewById(R.id.tvPosActualY);
@@ -371,18 +353,6 @@ public class MainActivity extends AppCompatActivity {
         // TODO Realizar con .get() en el execute para mostrar la posicion actual.
         conectarInternet();
         String getURL = null;
-        /*try {
-            getURL = net.execute(new URLS().GET_POSITION).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }*/
-        /*if (getURL != null) {
-            String[] positions = getURL.split(",");
-            positions[1] = positions[1].substring(0, positions[1].length() - 1);
-            posXActual = Integer.parseInt(positions[0]);
-            posYActual = Integer.parseInt(positions[1]);*/
         SeekBar sbX = (SeekBar) findViewById(R.id.seekBarX);
         SeekBar sbY = (SeekBar) findViewById(R.id.seekBarY);
         int posXTarget = sbX.getProgress();
@@ -392,13 +362,7 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(posYTarget);
         System.out.println(diffY);
         //IF PARA COMPROBAR SI LA POSICION TARGET ES MAYOR O MENOR, y enviar los datos correspondientes.
-        /*if (diffX > 0) {
-            net.execute(new URLS().MOVE_X_STEPS_POS + diffX);
-        } else if (diffX < 0) {
-            // Ejecutar mover mm X Pos
-            diffX = diffX * -1;
-            net.execute(new URLS().MOVE_X_STEPS_NEG + diffX);
-        }*/
+
         if (diffY > 0) {
             // Ejecutar mover mm Y Neg
             net.execute(new URLS().MOVE_Y_STEPS_POS + diffY);

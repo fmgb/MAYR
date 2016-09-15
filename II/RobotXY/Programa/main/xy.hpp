@@ -608,8 +608,8 @@ void motorHome(unsigned short motorSelect)
           contadorPasosX = 0;
           moveRight();
 	  
-          //while(digitalRead(I_FCX1)) {};
-          delay(tWaitFC);
+          while(digitalRead(I_FCX1)) {};
+          //delay(tWaitFC);
           stopMotorX();
         }
       else if(motorSelect == 1)
@@ -656,6 +656,7 @@ void calibrate(unsigned short motor)
       Serial.println(stepsXAux);
       *///Serial.println(contador
       moveLeft();
+      
       while(digitalRead(I_FCX2) && !emergencia){};
       stopMotorX();
       
